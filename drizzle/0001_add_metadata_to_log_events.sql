@@ -1,0 +1,1 @@
+ALTER TABLE "log_events" ADD COLUMN "metadata" jsonb; 

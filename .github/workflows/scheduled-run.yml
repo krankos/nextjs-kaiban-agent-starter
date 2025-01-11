@@ -8,7 +8,7 @@ on:
       topic:
         description: 'Topic for content generation'
         required: true
-        default: 'Latest AI Developments'
+        default: 'Latest AI News'
         type: string
 
 env:
@@ -27,87 +27,93 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install dependencies
-        run: npm install axios axios-retry
-
       - name: Create API call script
         run: |
           cat > trigger-run.js << 'EOL'
-          const axios = require('axios');
-          const axiosRetry = require('axios-retry');
+          const https = require('https');
           const fs = require('fs').promises;
-          const path = require('path');
-
-          // Configure axios retry logic
-          axiosRetry(axios, { 
-            retries: 3,
-            retryDelay: axiosRetry.exponentialDelay,
-            retryCondition: (error) => {
-              return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.response?.status === 429;
-            }
-          });
 
           async function triggerRun() {
             const topic = process.env.TOPIC;
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
             
-            try {
-              console.log(`Starting API call for topic: ${topic}`);
+            console.log(`Starting API call for topic: ${topic}`);
+            
+            const url = `${process.env.API_URL}/api/agents?topic=${encodeURIComponent(topic)}`;
+            
+            const request = https.get(url, async (res) => {
+              let data = '';
               
-              const response = await axios.get(`${process.env.API_URL}/api/agents`, {
-                params: { topic },
-                validateStatus: status => status === 200
+              // Check status code first
+              if (res.statusCode !== 200) {
+                console.error(`API returned status code: ${res.statusCode}`);
+                process.exit(1);
+              }
+              
+              res.on('data', (chunk) => {
+                data += chunk;
               });
               
-              if (!response.data || !response.data.output) {
-                throw new Error('Invalid response format from API');
-              }
+              res.on('end', async () => {
+                try {
+                  const response = JSON.parse(data);
+                  
+                  // Check for API error response
+                  if (response.error) {
+                    throw new Error(`API Error: ${response.error}`);
+                  }
+                  
+                  if (!response.output) {
+                    throw new Error('Invalid response format from API');
+                  }
 
-              // Create outputs directory if it doesn't exist
-              await fs.mkdir('outputs', { recursive: true });
-              
-              // Format the markdown content
-              const markdownContent = [
-                `# ${topic}`,
-                `Generated on: ${new Date().toISOString()}`,
-                '',
-                '## Content',
-                `${response.data.output.result || 'No content generated'}`,
-                '',
-                '## Run Statistics',
-                `- Run ID: ${response.data.runId || 'N/A'}`,
-                `- Status: ${response.data.output.status || 'N/A'}`,
-                response.data.output.stats ? [
-                  `- Duration: ${response.data.output.stats.duration}ms`,
-                  `- Total Tokens: ${response.data.output.stats.llmUsageStats?.inputTokens + response.data.output.stats.llmUsageStats?.outputTokens || 'N/A'}`,
-                  `- Cost: $${response.data.output.stats.costDetails?.totalCost.toFixed(4) || 'N/A'}`
-                ].join('\n') : ''
-              ].join('\n');
-              
-              // Save to file
-              const filename = `outputs/${timestamp}-${topic.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.md`;
-              await fs.writeFile(filename, markdownContent);
-              
-              console.log(`Successfully generated content for topic: ${topic}`);
-              console.log(`Saved to: ${filename}`);
-              
-              // Set environment variables for the commit step
-              process.env.COMMIT_MESSAGE = `Generated content for: ${topic}`;
-              process.env.FILE_PATH = filename;
-              
-            } catch (error) {
-              console.error('Error details:', {
-                message: error.message,
-                response: error.response?.data,
-                status: error.response?.status,
-                config: {
-                  url: error.config?.url,
-                  method: error.config?.method,
-                  headers: error.config?.headers
+                  // Create outputs directory if it doesn't exist
+                  await fs.mkdir('outputs', { recursive: true });
+                  
+                  // Format the markdown content
+                  const markdownContent = [
+                    `# ${topic}`,
+                    `Generated on: ${new Date().toISOString()}`,
+                    '',
+                    '## Content',
+                    `${response.output.result || 'No content generated'}`,
+                    '',
+                    '## Run Statistics',
+                    `- Run ID: ${response.runId || 'N/A'}`,
+                    `- Status: ${response.output.status || 'N/A'}`,
+                    response.output.stats ? [
+                      `- Duration: ${response.output.stats.duration}ms`,
+                      `- Total Tokens: ${response.output.stats.llmUsageStats?.inputTokens + response.output.stats.llmUsageStats?.outputTokens || 'N/A'}`,
+                      `- Cost: $${response.output.stats.costDetails?.totalCost.toFixed(4) || 'N/A'}`
+                    ].join('\n') : '',
+                    '',
+                    '## Generation Details',
+                    `- API Status Code: ${res.statusCode}`,
+                    `- Generated At: ${new Date().toISOString()}`
+                  ].join('\n');
+                  
+                  // Save to file
+                  const filename = `outputs/${timestamp}-${topic.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.md`;
+                  await fs.writeFile(filename, markdownContent);
+                  
+                  console.log(`Successfully generated content for topic: ${topic}`);
+                  console.log(`Saved to: ${filename}`);
+                  
+                  // Set environment variables for the commit step
+                  process.env.COMMIT_MESSAGE = `Generated content for: ${topic}`;
+                  process.env.FILE_PATH = filename;
+                  
+                } catch (error) {
+                  console.error('Error processing response:', error);
+                  process.exit(1);
                 }
               });
+            });
+            
+            request.on('error', (error) => {
+              console.error('Error making request:', error);
               process.exit(1);
-            }
+            });
           }
 
           triggerRun();

@@ -12,8 +12,7 @@ on:
         type: string
 
 env:
-  API_URL: ${{ secrets.API_URL }}
-  API_KEY: ${{ secrets.API_KEY }}
+  API_URL: https://nextjs-kaiban-agent-starter.vercel.app
   TOPIC: ${{ inputs.topic || 'AI News Today' }}  # Use input or default
 
 jobs:

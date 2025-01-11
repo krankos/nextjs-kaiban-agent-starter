@@ -33,7 +33,7 @@ jobs:
 
       - name: Create API call script
         run: |
-          cat > trigger-run.js << 'EOF'
+          cat > trigger-run.js << 'EOL'
           const axios = require('axios');
           const axiosRetry = require('axios-retry');
           const fs = require('fs').promises;
@@ -68,28 +68,32 @@ jobs:
               await fs.mkdir('outputs', { recursive: true });
               
               // Format the markdown content
-              const markdownContent = \`# \${topic}
-Generated on: \${new Date().toISOString()}
-
-## Content
-\${response.data.output.result || 'No content generated'}
-
-## Run Statistics
-- Run ID: \${response.data.runId || 'N/A'}
-- Status: \${response.data.output.status || 'N/A'}
-\${response.data.output.stats ? \`- Duration: \${response.data.output.stats.duration}ms
-- Total Tokens: \${response.data.output.stats.llmUsageStats?.inputTokens + response.data.output.stats.llmUsageStats?.outputTokens || 'N/A'}
-- Cost: $\${response.data.output.stats.costDetails?.totalCost.toFixed(4) || 'N/A'}\` : ''}\`;
+              const markdownContent = [
+                `# ${topic}`,
+                `Generated on: ${new Date().toISOString()}`,
+                '',
+                '## Content',
+                `${response.data.output.result || 'No content generated'}`,
+                '',
+                '## Run Statistics',
+                `- Run ID: ${response.data.runId || 'N/A'}`,
+                `- Status: ${response.data.output.status || 'N/A'}`,
+                response.data.output.stats ? [
+                  `- Duration: ${response.data.output.stats.duration}ms`,
+                  `- Total Tokens: ${response.data.output.stats.llmUsageStats?.inputTokens + response.data.output.stats.llmUsageStats?.outputTokens || 'N/A'}`,
+                  `- Cost: $${response.data.output.stats.costDetails?.totalCost.toFixed(4) || 'N/A'}`
+                ].join('\n') : ''
+              ].join('\n');
               
               // Save to file
-              const filename = \`outputs/\${timestamp}-\${topic.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.md\`;
+              const filename = `outputs/${timestamp}-${topic.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.md`;
               await fs.writeFile(filename, markdownContent);
               
-              console.log(\`Successfully generated content for topic: \${topic}\`);
-              console.log(\`Saved to: \${filename}\`);
+              console.log(`Successfully generated content for topic: ${topic}`);
+              console.log(`Saved to: ${filename}`);
               
               // Set environment variables for the commit step
-              process.env.COMMIT_MESSAGE = \`Generated content for: \${topic}\`;
+              process.env.COMMIT_MESSAGE = `Generated content for: ${topic}`;
               process.env.FILE_PATH = filename;
               
             } catch (error) {
@@ -108,7 +112,7 @@ Generated on: \${new Date().toISOString()}
           }
 
           triggerRun();
-          EOF
+          EOL
 
       - name: Execute API call
         run: node trigger-run.js

@@ -2,7 +2,7 @@
   "name": "agents",
   "version": "0.1.0",
   "private": true,
-    "scripts": {
+  "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -56,9 +56,10 @@
     "fs": "0.0.1-security",
     "input-otp": "^1.4.2",
     "kaibanjs": "^0.10.0",
-    "lucide-react": "^0.471.0",
+    "lucide-react": "0.470.0",
     "next": "15.0.3",
     "next-themes": "^0.4.4",
+    "openai": "^4.78.1",
     "pg": "^8.13.1",
     "react": "^18.2.0",
     "react-day-picker": "8.10.1",
@@ -79,8 +80,8 @@
   },
   "devDependencies": {
     "@types/node": "^22.10.5",
-    "@types/react": "^19.0.4",
-    "@types/react-dom": "^19.0.2",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
     "autoprefixer": "^10.4.20",
     "eslint": "^8",
     "eslint-config-next": "15.0.3",

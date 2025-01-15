@@ -165,8 +165,9 @@ Stylistic Guidelines:
     Use technical jargon sparingly and explain complex terms for a broader audience.
     Make sure the spacing and formatting are consistent for easy reading.
     Be creative with the headline to pique interest and encourage clicks.
-    Make sure bullet points are well styled. You can use "-" or "•" for bullet points and use new lines for each point.
+    Make sure bullet points are well styled. You can use "-" or "•" for bullet points and use spacing.
     At the end of the post, add a P.S. to indicate that the post was written by an AI assistant.
+    Use emojis sparingly and strategically to enhance the post’s visual appeal.
 
 Length:
 Aim for 150–200 words for optimal readability and impact.

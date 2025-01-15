@@ -61,7 +61,7 @@ const writerAgent = new Agent({
     name: 'Post Writer',
     role: 'Content Creator',
     goal: 'Create comprehensive content, detailed citations, expert quotes.',
-    background: 'Expert in academic writing, technical communication, and data journalism. Skilled at synthesizing complex information, Experienced in creating properly cited content.',
+    background: 'Expert in academic writing, technical communication, and data journalism. Skilled at synthesizing complex information, Experienced in creating properly cited content. Expert in LinkedIn Marketing, especially in the tech industry. Skilled at writing engaging and informative content for LinkedIn posts.',
     tools: []
 });
 
@@ -114,27 +114,66 @@ const secondaryResearchTask = new Task({
 });
 
 const writingTask = new Task({
-    title: 'Blog post writing',
-    description: `
-        Write an analytical draft compiling all of the research and content extraction results.
-        Requirements:
-        - Create a clear outline
-        - Include relevant quotes and statistics
-        - Add proper citations
-        - Aim for complete and comprehensive
-        - Verbosity and length is required
+  title: "LinkedIn post writing",
+  description: `
+        Write a LinkedIn post that showcases the company’s (Addval Solutions) expertise, value, and contributions without relying on fabricated or unverifiable information.
+
+Requirements:
+
+    Authentic Hook: Start with a compelling and factual opening line—this could be a verified statistic, a milestone the company has achieved, or a relevant industry insight. Avoid generic or sensationalist claims.
+    Educational and Value-Driven: Share actionable insights, real-world examples, or thoughtful perspectives that reflect the company’s core values and expertise. If referencing data, ensure it is sourced from credible publications or the company’s own verified reports.
+    Concise and Readable Structure: Use short paragraphs, lists, or bullet points for clarity.
+    Brand Alignment: Maintain a tone that aligns with the company’s values: professional, approachable, and solution-oriented. Avoid exaggerated or salesy language.
+    Engaging Call to Action (CTA): Encourage interaction with prompts like:
+        “What are your thoughts on this approach?”
+        “Explore our recent case study for more insights.”
+        “We’d love to hear how your team handles [topic].”
+
+Stylistic Guidelines:
+
+    Prioritize transparency: If data or metrics are included, ensure they are attributed to reliable sources. For example, “According to [source], X% of professionals in our industry face this challenge.”
+    Avoid hyperbole or unverifiable claims, focusing instead on measurable outcomes or expert commentary.
+    Keep it concise, between 150-250 words, with a focus on delivering clear value.
+
+Optional Enhancements:
+
+    Include visuals or links to reports, case studies, or white papers for additional credibility.
+    Share behind-the-scenes company updates or achievements that demonstrate transparency and authenticity.
     `,
-    expectedOutput: 'A compilation of all of the research and content extraction results done in prior steps on {topic}.',
-    agent: writerAgent
+  expectedOutput:
+    "A compilation of all of the research and content extraction results done in prior steps on {topic}.",
+  agent: writerAgent,
 });
 
 const produceBlogPostTask = new Task({
-    title: 'Produce Blog Post',
-    description: `
-        Produce the final blog post about {topic} based on the provided research with emojis and formatting.
+  title: "Produce LinkedIn Post",
+  description: `
+        Using the summarized findings on {topic}, write a polished LinkedIn post that is concise, engaging, and aligned with best practices for company page content.
+
+Requirements:
+
+    Compelling Opening: Start with a bold statement, statistic, or question to grab attention.
+    Value-Driven Content: Highlight the key insights or solutions from the research in a way that resonates with the target audience.
+    Clear and Concise: Structure the post for readability with short paragraphs or bullet points.
+    Professional Tone: Reflect the company’s brand voice while maintaining a conversational and approachable style.
+    Call to Action: Conclude with a clear invitation for engagement, such as “What do you think about this approach?” or “Share your thoughts in the comments.”
+
+Stylistic Guidelines:
+
+    Use simple, direct language to ensure clarity.
+    Limit emojis to 1–2, if any, to keep the post professional.
+    Use technical jargon sparingly and explain complex terms for a broader audience.
+    Make sure the spacing and formatting are consistent for easy reading.
+    Be creative with the headline to pique interest and encourage clicks.
+    Make sure bullet points are well styled. You can use "-" or "•" for bullet points and use new lines for each point.
+    At the end of the post, add a P.S. to indicate that the post was written by an AI assistant.
+
+Length:
+Aim for 150–200 words for optimal readability and impact.
     `,
-    expectedOutput: 'A complete blog post in markdown format with citations and structured sections based on the provided research and draft of on {topic}.',
-    agent: writerAgent
+  expectedOutput:
+    "A complete LinkedIn post in plain text, structured with a compelling opening, key insights, and an engaging conclusion based on the provided research on {topic}.",
+  agent: writerAgent,
 });
 
 // Create the Team

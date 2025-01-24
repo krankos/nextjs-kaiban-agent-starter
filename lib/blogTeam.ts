@@ -69,10 +69,10 @@ const writerAgent = new Agent({
 const researchTask = new Task({
     title: 'Latest news research',
     description: `
-        Research and identify 6-10 recent, credible sources and summaries on: {topic}
+        Research and identify 2-3 recent, credible sources and summaries on: {topic}
         Requirements:
         - Articles must be today and relevant to {topic}
-        - Include at least 3 different perspectives on the topic
+        - Include at least 3 different perspectives on the topic, if possible
         - Avoid duplicate coverage
         - Provide brief summaries for each article
     `,
@@ -85,9 +85,8 @@ const firecrawlTask = new Task({
     description: `
         Extract content from the provided URLs for topic: {topic}
         Requirements:
-        - Maintain proper attribution and source links
         - Format content in clean markdown
-        - Extract 3-5 key quotes per article
+        - Extract 2-3 key quotes per article, if available
         - Note any statistical data points
         - Flag paywalled content
     `,
@@ -131,7 +130,6 @@ Requirements:
 
 Stylistic Guidelines:
 
-    Prioritize transparency: If data or metrics are included, ensure they are attributed to reliable sources. For example, “According to [source], X% of professionals in our industry face this challenge.”
     Avoid hyperbole or unverifiable claims, focusing instead on measurable outcomes or expert commentary.
     Keep it concise, between 150-250 words, with a focus on delivering clear value.
 
@@ -167,7 +165,7 @@ Stylistic Guidelines:
     Be creative with the headline to pique interest and encourage clicks.
     Make sure bullet points are well styled. You can use "-" or "•" for bullet points and use spacing.
     At the end of the post, add a P.S. to indicate that the post was written by an AI assistant.
-    Use emojis sparingly and strategically to enhance the post’s visual appeal.
+    Use emojis to make the post more engaging and visually appealing.
 
 Length:
 Aim for 150–200 words for optimal readability and impact.
@@ -176,12 +174,27 @@ Aim for 150–200 words for optimal readability and impact.
     "A complete LinkedIn post in plain text, structured with a compelling opening, key insights, and an engaging conclusion based on the provided research on {topic}.",
   agent: writerAgent,
 });
+const humanizeBlogPostTask = new Task({
+    title: "Humanize LinkedIn Post",
+    description: `
+            Enhance the AI-generated LinkedIn post by adding a personal touch, storytelling elements, and a human perspective to make the content more relatable and engaging.
+            <context>
+Rewrite this LinkedIn post and keep the same structure, information and length. Only change the language used.
+</context>
+ 
+<prohibited_words>
+Do not use complex or abstract terms such as 'meticulous,' 'navigating,' 'complexities,' 'realm,' 'bespoke,' 'tailored,' 'towards,' 'underpins,' 'ever-changing,' 'ever-evolving,' 'the world of,' 'not only,' 'seeking more than just,' 'designed to enhance,' 'it's not merely,' 'our suite,' 'it is advisable,' 'daunting,' 'in the heart of,' 'when it comes to,' 'in the realm of,' 'amongst,' 'unlock the secrets,' 'unveil the secrets,' 'transforms' and 'robust.' This approach aims to streamline content production for enhanced NLP algorithm comprehension, ensuring the output is direct, accessible, and easily interpretable.
+</prohibited_words>`
+,
+    expectedOutput: "A revised version of the AI-generated LinkedIn post that maintains the same structure, information, and length while enhancing readability and engagement through humanized language.",
+    agent: writerAgent,
+});
 
 // Create the Team
 export const blogTeam = new Team({
     name: 'AI Research Team',
     agents: [researchAgent, firecrawlAgent, evaluationAgent, secondaryResearchAgent, writerAgent],
-    tasks: [researchTask, firecrawlTask, evaluationTask, secondaryResearchTask, writingTask, produceBlogPostTask],
+    tasks: [researchTask, firecrawlTask, evaluationTask, secondaryResearchTask, writingTask, produceBlogPostTask, humanizeBlogPostTask],
     env: {
         OPENAI_API_KEY: process.env.NEXT_PUBLIC_OPENAI_API_KEY ?? '',
         TRAVILY_API_KEY: process.env.NEXT_PUBLIC_TRAVILY_API_KEY ?? '',
